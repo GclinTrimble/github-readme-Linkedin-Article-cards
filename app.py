@@ -21,12 +21,21 @@ def _get_int_arg(name: str, default: int, min_value: int, max_value: int) -> int
     return max(min(number, max_value), min_value)
 
 
-def _is_valid_linkedin_article_url(value: str) -> bool:
+def _normalize_and_validate_linkedin_article_url(value: str) -> str:
     parsed = urlparse(value)
-    if parsed.scheme not in {"http", "https"}:
-        return False
+    if parsed.scheme != "https" or parsed.username or parsed.password:
+        return ""
     hostname = (parsed.hostname or "").lower()
-    return hostname.endswith("linkedin.com")
+    if hostname not in {"linkedin.com", "www.linkedin.com"}:
+        return ""
+    if parsed.port not in (None, 443):
+        return ""
+    if not (parsed.path.startswith("/pulse/") or parsed.path.startswith("/posts/")):
+        return ""
+    safe_url = f"https://www.linkedin.com{parsed.path}"
+    if parsed.query:
+        safe_url += f"?{parsed.query}"
+    return safe_url
 
 
 def _extract_meta_tags(content: str) -> dict[str, str]:
@@ -66,8 +75,8 @@ def _trim_lines(value: str, width: int, max_lines: int) -> list[str]:
     return lines[:max_lines]
 
 
-def _fetch_article_metadata(article_url: str) -> dict[str, str]:
-    req = Request(article_url)
+def _fetch_article_metadata(article_path_query: str) -> dict[str, str]:
+    req = Request(f"https://www.linkedin.com{article_path_query}")
     req.add_header(
         "User-Agent",
         (
@@ -165,10 +174,11 @@ def home() -> str:
 
 @app.get("/card.svg")
 def card() -> Response:
-    article_url = request.args.get("url", "").strip()
-    if not article_url:
+    requested_url = request.args.get("url", "").strip()
+    if not requested_url:
         return Response("Missing required 'url' query parameter", status=400)
-    if not _is_valid_linkedin_article_url(article_url):
+    article_url = _normalize_and_validate_linkedin_article_url(requested_url)
+    if not article_url:
         return Response("The 'url' must be a valid LinkedIn URL", status=400)
 
     width = _get_int_arg("width", default=420, min_value=220, max_value=1200)
