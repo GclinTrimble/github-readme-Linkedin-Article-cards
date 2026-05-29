@@ -215,6 +215,19 @@ def test_replace_between_markers_noop_without_markers():
     assert action_entry.replace_between_markers("no markers here", "LINKEDIN-CARDS", "X") is None
 
 
+def test_replace_between_markers_only_first_pair():
+    # A second marker pair (e.g. a docs example in a code fence) must stay untouched.
+    text = (
+        "<!-- LINKEDIN-CARDS-START -->\nreal\n<!-- LINKEDIN-CARDS-END -->\n"
+        "docs:\n<!-- LINKEDIN-CARDS-START -->\n<!-- LINKEDIN-CARDS-END -->\n"
+    )
+    out = action_entry.replace_between_markers(text, "LINKEDIN-CARDS", "NEW")
+    assert out is not None
+    assert out.count("NEW") == 1
+    # The example pair below stays empty.
+    assert out.endswith("<!-- LINKEDIN-CARDS-START -->\n<!-- LINKEDIN-CARDS-END -->\n")
+
+
 def test_build_embed_single_variant_uses_img():
     block = action_entry.build_embed(["linkedin-cards"], "assets", "https://example.com/p")
     assert 'target="_blank"' in block

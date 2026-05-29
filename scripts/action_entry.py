@@ -111,9 +111,11 @@ def build_embed(variant_names: list[str], output_dir: str, profile_url: str) -> 
 
 
 def replace_between_markers(text: str, tag: str, block: str) -> str | None:
-    """Replace content between ``<!-- {tag}-START -->`` and ``<!-- {tag}-END -->``.
+    """Replace content between the first ``<!-- {tag}-START -->`` / ``<!-- {tag}-END -->`` pair.
 
-    Returns the new text, or ``None`` if the markers are not present.
+    Only the first pair is rewritten (``count=1``) so a documentation example of
+    the markers elsewhere in the file — e.g. inside a fenced code block — is left
+    untouched. Returns the new text, or ``None`` if the markers are not present.
     """
     start = f"<!-- {tag}-START -->"
     end = f"<!-- {tag}-END -->"
@@ -122,7 +124,7 @@ def replace_between_markers(text: str, tag: str, block: str) -> str | None:
     )
     if not pattern.search(text):
         return None
-    return pattern.sub(f"{start}\n{block}\n{end}", text)
+    return pattern.sub(f"{start}\n{block}\n{end}", text, count=1)
 
 
 def main() -> int:

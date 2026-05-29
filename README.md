@@ -135,12 +135,6 @@ in your repo and refreshes them on a schedule — no server hosting required.
 
 ```md
 <!-- LINKEDIN-CARDS-START -->
-<a href="https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/" target="_blank" rel="noopener noreferrer">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./assets/linkedin-cards-dark.svg" />
-    <img alt="LinkedIn articles" src="./assets/linkedin-cards-light.svg" />
-  </picture>
-</a>
 <!-- LINKEDIN-CARDS-END -->
 ```
 
