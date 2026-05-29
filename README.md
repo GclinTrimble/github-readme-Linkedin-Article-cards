@@ -57,8 +57,12 @@ can still be used to render a card.
 
 ## Live Examples (multiple article tiles)
 
-[![LinkedIn articles](./assets/linkedin-cards-dark.svg#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
-[![LinkedIn articles](./assets/linkedin-cards-light.svg#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+<a href="https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/linkedin-cards-dark.svg" />
+    <img alt="LinkedIn articles" src="./assets/linkedin-cards-light.svg" />
+  </picture>
+</a>
 
 The grid above is rendered to static SVG files committed under [`assets/`](./assets)
 and refreshed automatically — see [How the cards stay updated](#how-the-cards-stay-updated).

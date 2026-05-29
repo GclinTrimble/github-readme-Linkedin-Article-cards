@@ -7,7 +7,26 @@
   ],
   "max": 3,
   "columns": 3,
-  "overrides": {},
+  "overrides": {
+    "https://www.linkedin.com/pulse/system-aoteroa-infrastructure-guillaume-clin-mqlsc": {
+      "title": "A \"System of System\" for Aoteroa Infrastructure",
+      "description": "Exploring a system-of-systems approach to delivering infrastructure across Aotearoa New Zealand.",
+      "image": "https://media.licdn.com/dms/image/v2/D5612AQHLdXPxqGSnpA/article-cover_image-shrink_720_1280/B56ZiTkfLIG0AI-/0/1754822473829?e=2147483647&v=beta&t=quohDofRpDBZPeDZCa70so9keJhm4OL9lTf4vKB2EPc",
+      "likes": "27 likes"
+    },
+    "https://www.linkedin.com/pulse/connected-data-civil-construction-examination-cde-ecosystems-clin-xthyc": {
+      "title": "Connected Data in Civil Construction: An Examination of CDE, Connected Environments, Ecosystems, and Trimble's Role",
+      "description": "How CDEs, connected environments, and ecosystems shape data sharing in civil construction — and Trimble's role.",
+      "image": "https://media.licdn.com/dms/image/v2/D5612AQF5OWD-75n0pQ/article-cover_image-shrink_720_1280/B56ZXolT7kGoAQ-/0/1743363857614?e=2147483647&v=beta&t=AykrWBlTpACzq4RHPr76LeOi79TS9BThMMlqS9Fgghk",
+      "likes": "11 likes"
+    },
+    "https://www.linkedin.com/pulse/civil-construction-terrain-aggregation-surface-data-connected-clin-oebtc": {
+      "title": "Civil Construction Terrain and the Aggregation of Surface Data for a Connected Ecosystem",
+      "description": "Aggregating terrain and surface data to enable a connected civil construction ecosystem.",
+      "image": "https://media.licdn.com/dms/image/v2/D5612AQHzHRKQcMExEg/article-cover_image-shrink_720_1280/B56ZWltlr3HoAI-/0/1742241948960?e=2147483647&v=beta&t=-dhG8mGw0ARyjAju943pOVOFVuU3tOz7NZkakDKKrrQ",
+      "likes": "37 likes"
+    }
+  },
   "variants": [
     {
       "name": "linkedin-cards-dark",

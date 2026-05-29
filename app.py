@@ -214,7 +214,9 @@ def build_cards_svg(
     for article_url in article_urls:
         override = overrides.get(article_url, {})
         metadata = {"title": "", "description": "", "image": "", "likes": ""}
-        if not all(override.get(k) for k in ("title", "description", "image", "likes")):
+        # An override entry is authoritative: skip the live fetch entirely so the
+        # render stays correct (and fast) even when LinkedIn blocks the caller.
+        if not override:
             try:
                 metadata = fetch_article_metadata(article_url)
             except (URLError, TimeoutError, ValueError):
