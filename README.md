@@ -63,7 +63,7 @@ endpoint:
 `GET /cards.svg?url=<recent-activity-articles-url>&urls=<fallback-list>`
 
 ```text
-http://127.0.0.1:5000/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/a,https://www.linkedin.com/pulse/b&max=4&columns=2
+http://127.0.0.1:5000/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/system-aoteroa-infrastructure-guillaume-clin-mqlsc,https://www.linkedin.com/pulse/connected-data-civil-construction-examination-cde-ecosystems-clin-xthyc,https://www.linkedin.com/pulse/civil-construction-terrain-aggregation-surface-data-connected-clin-oebtc&max=3&columns=3
 ```
 
 The endpoint first makes a **best-effort** attempt to scrape article links from the
@@ -86,11 +86,12 @@ single-card endpoint (`width` is the per-tile width, plus `border_radius`,
 `image_ratio`, colors, `font_family`, `max_title_lines`, `max_description_lines`)
 apply to every tile.
 
-Dark / light variants work the same way as the single card:
+Dark / light variants work the same way as the single card. Using my own articles
+as the live example (`urls=` carries the reliable fallback list):
 
 ```md
-[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/a,https://www.linkedin.com/pulse/b&max=4&columns=2&background_color=0d1117&title_color=ffffff#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
-[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/a,https://www.linkedin.com/pulse/b&max=4&columns=2&background_color=ffffff&title_color=24292f&description_color=57606a#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/system-aoteroa-infrastructure-guillaume-clin-mqlsc,https://www.linkedin.com/pulse/connected-data-civil-construction-examination-cde-ecosystems-clin-xthyc,https://www.linkedin.com/pulse/civil-construction-terrain-aggregation-surface-data-connected-clin-oebtc&max=3&columns=3&background_color=0d1117&title_color=ffffff#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/system-aoteroa-infrastructure-guillaume-clin-mqlsc,https://www.linkedin.com/pulse/connected-data-civil-construction-examination-cde-ecosystems-clin-xthyc,https://www.linkedin.com/pulse/civil-construction-terrain-aggregation-surface-data-connected-clin-oebtc&max=3&columns=3&background_color=ffffff&title_color=24292f&description_color=57606a#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
 ```
 
 ## Light / dark mode
