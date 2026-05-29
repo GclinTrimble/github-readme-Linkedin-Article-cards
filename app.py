@@ -163,25 +163,76 @@ def cards() -> Response:
     accent_color = validate_color(request.args.get("accent_color"), "#2f81f7")
     font_family = request.args.get("font_family", "").strip() or DEFAULT_FONT_FAMILY
 
+    svg = build_cards_svg(
+        article_urls,
+        width=width,
+        border_radius=border_radius,
+        max_title_lines=max_title_lines,
+        max_description_lines=max_description_lines,
+        image_ratio=image_ratio,
+        background_color=background_color,
+        title_color=title_color,
+        description_color=description_color,
+        stats_color=stats_color,
+        accent_color=accent_color,
+        font_family=font_family,
+        columns=columns,
+    )
+    response = Response(svg, mimetype="image/svg+xml")
+    response.headers["Content-Type"] = "image/svg+xml; charset=utf-8"
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    return response
+
+
+def build_cards_svg(
+    article_urls: list[str],
+    *,
+    width: int = 420,
+    border_radius: int = 10,
+    max_title_lines: int = 2,
+    max_description_lines: int = 2,
+    image_ratio: float = 0.52,
+    background_color: str = "#0d1117",
+    title_color: str = "#ffffff",
+    description_color: str = "#c9d1d9",
+    stats_color: str = "#8b949e",
+    accent_color: str = "#2f81f7",
+    font_family: str = DEFAULT_FONT_FAMILY,
+    columns: int = 2,
+    overrides: dict[str, dict[str, str]] | None = None,
+) -> str:
+    """Render a grid SVG for the given article URLs.
+
+    ``overrides`` maps an article URL to manual metadata (title/description/image/likes)
+    that replaces the live fetch for that tile — used when LinkedIn blocks the caller's
+    network (e.g. CI runners) so the static render stays correct.
+    """
+    overrides = overrides or {}
     image_height = int(width * image_ratio)
 
     contents = []
     for article_url in article_urls:
+        override = overrides.get(article_url, {})
         metadata = {"title": "", "description": "", "image": "", "likes": ""}
-        try:
-            metadata = fetch_article_metadata(article_url)
-        except (URLError, TimeoutError, ValueError):
-            pass
-        title = metadata["title"] or "LinkedIn Article"
-        description = metadata["description"] or "Read this article on LinkedIn."
+        if not all(override.get(k) for k in ("title", "description", "image", "likes")):
+            try:
+                metadata = fetch_article_metadata(article_url)
+            except (URLError, TimeoutError, ValueError):
+                pass
+        title = override.get("title") or metadata["title"] or "LinkedIn Article"
+        description = (
+            override.get("description") or metadata["description"] or "Read this article on LinkedIn."
+        )
+        image_source = override.get("image") or metadata["image"]
+        likes = override.get("likes") or metadata["likes"]
         contents.append(
             {
                 "title_lines": trim_lines(title, max(20, width // 10), max_title_lines),
                 "description_lines": trim_lines(
                     description, max(30, width // 12), max_description_lines
                 ),
-                "image_href": data_uri_from_url(metadata["image"]),
-                "likes": metadata["likes"],
+                "image_href": data_uri_from_url(image_source),
+                "likes": likes,
             }
         )
 
@@ -232,16 +283,12 @@ def cards() -> Response:
     canvas_width = used_columns * width + (used_columns - 1) * GRID_GAP
     canvas_height = rows * tile_height + (rows - 1) * GRID_GAP
 
-    svg = render_template(
+    return render_template(
         "cards.svg",
         canvas_width=canvas_width,
         canvas_height=canvas_height,
         tiles=tiles,
     )
-    response = Response(svg, mimetype="image/svg+xml")
-    response.headers["Content-Type"] = "image/svg+xml; charset=utf-8"
-    response.headers["Cache-Control"] = "public, max-age=3600"
-    return response
 
 
 def _render_card(

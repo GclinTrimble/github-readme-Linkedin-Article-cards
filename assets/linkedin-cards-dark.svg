@@ -1,0 +1,105 @@
+<!-- github-readme-Linkedin-Article-cards (grid) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1292" height="336"
+    viewBox="0 0 1292 336" role="img"
+    aria-label="LinkedIn article cards">
+    
+    <svg x="0" y="0" width="420" height="336"
+        viewBox="0 0 420 336" overflow="visible">
+        
+        <defs>
+    <clipPath id="card-clip-0">
+        <rect x="0" y="0" width="420" height="336"
+            rx="10" ry="10" />
+    </clipPath>
+</defs>
+<g clip-path="url(#card-clip-0)">
+    <rect width="420" height="336" fill="#0d1117" />
+    
+    <rect x="0" y="0" width="420" height="218" fill="#2f81f7" />
+    <text x="210.0" y="109.0" text-anchor="middle" fill="#ffffff"
+        font-family="Segoe UI, Roboto, sans-serif" font-size="18" font-weight="600">LinkedIn Article</text>
+    
+
+    
+    <text x="16" y="248" fill="#ffffff"
+        font-family="Segoe UI, Roboto, sans-serif" font-size="20" font-weight="600">LinkedIn Article</text>
+    
+
+    
+    <text x="16" y="276"
+        fill="#c9d1d9" font-family="Segoe UI, Roboto, sans-serif"
+        font-size="14">Read this article on LinkedIn.</text>
+    
+
+    
+</g>
+        
+    </svg>
+    
+    <svg x="436" y="0" width="420" height="336"
+        viewBox="0 0 420 336" overflow="visible">
+        
+        <defs>
+    <clipPath id="card-clip-1">
+        <rect x="0" y="0" width="420" height="336"
+            rx="10" ry="10" />
+    </clipPath>
+</defs>
+<g clip-path="url(#card-clip-1)">
+    <rect width="420" height="336" fill="#0d1117" />
+    
+    <rect x="0" y="0" width="420" height="218" fill="#2f81f7" />
+    <text x="210.0" y="109.0" text-anchor="middle" fill="#ffffff"
+        font-family="Segoe UI, Roboto, sans-serif" font-size="18" font-weight="600">LinkedIn Article</text>
+    
+
+    
+    <text x="16" y="248" fill="#ffffff"
+        font-family="Segoe UI, Roboto, sans-serif" font-size="20" font-weight="600">LinkedIn Article</text>
+    
+
+    
+    <text x="16" y="276"
+        fill="#c9d1d9" font-family="Segoe UI, Roboto, sans-serif"
+        font-size="14">Read this article on LinkedIn.</text>
+    
+
+    
+</g>
+        
+    </svg>
+    
+    <svg x="872" y="0" width="420" height="336"
+        viewBox="0 0 420 336" overflow="visible">
+        
+        <defs>
+    <clipPath id="card-clip-2">
+        <rect x="0" y="0" width="420" height="336"
+            rx="10" ry="10" />
+    </clipPath>
+</defs>
+<g clip-path="url(#card-clip-2)">
+    <rect width="420" height="336" fill="#0d1117" />
+    
+    <rect x="0" y="0" width="420" height="218" fill="#2f81f7" />
+    <text x="210.0" y="109.0" text-anchor="middle" fill="#ffffff"
+        font-family="Segoe UI, Roboto, sans-serif" font-size="18" font-weight="600">LinkedIn Article</text>
+    
+
+    
+    <text x="16" y="248" fill="#ffffff"
+        font-family="Segoe UI, Roboto, sans-serif" font-size="20" font-weight="600">LinkedIn Article</text>
+    
+
+    
+    <text x="16" y="276"
+        fill="#c9d1d9" font-family="Segoe UI, Roboto, sans-serif"
+        font-size="14">Read this article on LinkedIn.</text>
+    
+
+    
+</g>
+        
+    </svg>
+    
+</svg>

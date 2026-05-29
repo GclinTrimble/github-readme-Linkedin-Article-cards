@@ -57,8 +57,33 @@ can still be used to render a card.
 
 ## Live Examples (multiple article tiles)
 
-To show several articles at once as a grid in a single image, use the `/cards.svg`
-endpoint:
+[![LinkedIn articles](./assets/linkedin-cards-dark.svg#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+[![LinkedIn articles](./assets/linkedin-cards-light.svg#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+
+The grid above is rendered to static SVG files committed under [`assets/`](./assets)
+and refreshed automatically — see [How the cards stay updated](#how-the-cards-stay-updated).
+No server hosting is required for the README to render.
+
+### How the cards stay updated
+
+A scheduled GitHub Action ([`.github/workflows/update-linkedin-cards.yml`](.github/workflows/update-linkedin-cards.yml))
+regenerates `assets/linkedin-cards-*.svg` daily, on manual **Run workflow**
+(`workflow_dispatch`), and whenever [`cards.config.json`](./cards.config.json) changes.
+It runs [`scripts/generate_cards.py`](./scripts/generate_cards.py) and commits any changes.
+
+To change which articles appear (or their colors/layout), edit `cards.config.json`:
+
+- `urls` — the reliable list of article URLs to render (LinkedIn authwalls anonymous
+  discovery via `profile_url`, so this list is what actually gets used).
+- `max` / `columns` — tile count and grid columns.
+- `overrides` — optional per-URL `title`/`description`/`image`/`likes` used when the
+  Action runner can't fetch LinkedIn (its IP may also be authwalled), keeping the render correct.
+- `variants` — one committed SVG per entry (e.g. dark and light).
+
+### Self-hosting the live endpoint (optional)
+
+If you prefer per-view live rendering instead of committed assets, run the `/cards.svg`
+endpoint yourself:
 
 `GET /cards.svg?url=<recent-activity-articles-url>&urls=<fallback-list>`
 
@@ -86,12 +111,12 @@ single-card endpoint (`width` is the per-tile width, plus `border_radius`,
 `image_ratio`, colors, `font_family`, `max_title_lines`, `max_description_lines`)
 apply to every tile.
 
-Dark / light variants work the same way as the single card. Using my own articles
-as the live example (`urls=` carries the reliable fallback list):
+When self-hosting, dark / light variants work the same way as the single card —
+point each themed embed at your running endpoint:
 
 ```md
-[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/system-aoteroa-infrastructure-guillaume-clin-mqlsc,https://www.linkedin.com/pulse/connected-data-civil-construction-examination-cde-ecosystems-clin-xthyc,https://www.linkedin.com/pulse/civil-construction-terrain-aggregation-surface-data-connected-clin-oebtc&max=3&columns=3&background_color=0d1117&title_color=ffffff#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
-[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/system-aoteroa-infrastructure-guillaume-clin-mqlsc,https://www.linkedin.com/pulse/connected-data-civil-construction-examination-cde-ecosystems-clin-xthyc,https://www.linkedin.com/pulse/civil-construction-terrain-aggregation-surface-data-connected-clin-oebtc&max=3&columns=3&background_color=ffffff&title_color=24292f&description_color=57606a#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+[![LinkedIn articles](https://<your-host>/cards.svg?urls=<pulse-1>,<pulse-2>,<pulse-3>&max=3&columns=3&background_color=0d1117&title_color=ffffff#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+[![LinkedIn articles](https://<your-host>/cards.svg?urls=<pulse-1>,<pulse-2>,<pulse-3>&max=3&columns=3&background_color=ffffff&title_color=24292f&description_color=57606a#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
 ```
 
 ## Light / dark mode

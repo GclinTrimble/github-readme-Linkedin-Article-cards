@@ -1,0 +1,25 @@
+{
+  "profile_url": "https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/",
+  "urls": [
+    "https://www.linkedin.com/pulse/system-aoteroa-infrastructure-guillaume-clin-mqlsc",
+    "https://www.linkedin.com/pulse/connected-data-civil-construction-examination-cde-ecosystems-clin-xthyc",
+    "https://www.linkedin.com/pulse/civil-construction-terrain-aggregation-surface-data-connected-clin-oebtc"
+  ],
+  "max": 3,
+  "columns": 3,
+  "overrides": {},
+  "variants": [
+    {
+      "name": "linkedin-cards-dark",
+      "background_color": "#0d1117",
+      "title_color": "#ffffff",
+      "description_color": "#c9d1d9"
+    },
+    {
+      "name": "linkedin-cards-light",
+      "background_color": "#ffffff",
+      "title_color": "#24292f",
+      "description_color": "#57606a"
+    }
+  ]
+}

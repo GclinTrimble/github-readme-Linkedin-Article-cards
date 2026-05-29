@@ -1,8 +1,10 @@
+import json
 import xml.dom.minidom as minidom
 
 import pytest
 
 import app as app_module
+import scripts.generate_cards as gen
 from card.utils import data_uri_from_url, trim_lines
 
 
@@ -119,6 +121,73 @@ def test_cards_falls_back_when_scrape_yields_nothing(client, monkeypatch):
     assert resp.status_code == 200
     doc = minidom.parseString(resp.data)
     assert len(doc.documentElement.getElementsByTagName("svg")) == 1
+
+
+def test_build_cards_svg_renders_one_tile_per_url(monkeypatch):
+    _patch_metadata(monkeypatch, title="Hi", description="There", likes="5 likes")
+    monkeypatch.setattr(app_module, "data_uri_from_url", lambda _url: "")
+    urls = [
+        "https://www.linkedin.com/pulse/a",
+        "https://www.linkedin.com/pulse/b",
+    ]
+    with app_module.app.app_context():
+        svg = app_module.build_cards_svg(urls, columns=2)
+    doc = minidom.parseString(svg)
+    assert doc.documentElement.tagName == "svg"
+    assert len(doc.documentElement.getElementsByTagName("svg")) == 2
+
+
+def test_build_cards_svg_override_skips_metadata_fetch(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        app_module,
+        "fetch_article_metadata",
+        lambda url: calls.append(url) or {"title": "", "description": "", "image": "", "likes": ""},
+    )
+    monkeypatch.setattr(app_module, "data_uri_from_url", lambda _url: "")
+    url = "https://www.linkedin.com/pulse/a"
+    overrides = {
+        url: {
+            "title": "Overridden",
+            "description": "Desc",
+            "image": "https://x/y.jpg",
+            "likes": "9 likes",
+        }
+    }
+    with app_module.app.app_context():
+        svg = app_module.build_cards_svg([url], overrides=overrides)
+    assert calls == []  # fully-overridden tile never hits the network
+    assert "Overridden" in svg
+
+
+def test_generate_cards_writes_variant_files(monkeypatch, tmp_path):
+    _patch_metadata(monkeypatch, title="Hi", description="There")
+    monkeypatch.setattr(app_module, "data_uri_from_url", lambda _url: "")
+    monkeypatch.setattr(gen, "fetch_article_urls", lambda _url: [])
+    config = {
+        "urls": [
+            "https://www.linkedin.com/pulse/a",
+            "https://www.linkedin.com/pulse/b",
+        ],
+        "max": 2,
+        "columns": 2,
+        "variants": [
+            {"name": "dark", "background_color": "#0d1117"},
+            {"name": "light", "background_color": "#ffffff"},
+        ],
+    }
+    config_path = tmp_path / "cards.config.json"
+    config_path.write_text(json.dumps(config), encoding="utf-8")
+    assets_dir = tmp_path / "assets"
+    monkeypatch.setattr(gen, "CONFIG_PATH", config_path)
+    monkeypatch.setattr(gen, "ASSETS_DIR", assets_dir)
+
+    assert gen.main() == 0
+    for name in ("dark", "light"):
+        out = assets_dir / f"{name}.svg"
+        assert out.exists()
+        doc = minidom.parseString(out.read_text(encoding="utf-8"))
+        assert doc.documentElement.tagName == "svg"
 
 
 def test_trim_lines_adds_ellipsis():
