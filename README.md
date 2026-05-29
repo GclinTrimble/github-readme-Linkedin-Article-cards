@@ -154,7 +154,7 @@ jobs:
   update-readme:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: GclinTrimble/github-readme-Linkedin-Article-cards@main
         with:
           profile_url: https://www.linkedin.com/in/<your-vanity>/recent-activity/articles/
