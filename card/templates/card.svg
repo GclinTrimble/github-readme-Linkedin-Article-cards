@@ -1,37 +1,7 @@
 <!-- github-readme-Linkedin-Article-cards -->
 <svg xmlns="http://www.w3.org/2000/svg" width="{{ width }}" height="{{ height }}"
     viewBox="0 0 {{ width }} {{ height }}" role="img" aria-label="LinkedIn article card">
-    <defs>
-        <clipPath id="card-clip">
-            <rect x="0" y="0" width="{{ width }}" height="{{ height }}"
-                rx="{{ border_radius }}" ry="{{ border_radius }}" />
-        </clipPath>
-    </defs>
-    <g clip-path="url(#card-clip)">
-        <rect width="{{ width }}" height="{{ height }}" fill="{{ background_color }}" />
-        {% if image_href %}
-        <image href="{{ image_href }}" x="0" y="0" width="{{ width }}" height="{{ image_height }}"
-            preserveAspectRatio="xMidYMid slice" />
-        {% else %}
-        <rect x="0" y="0" width="{{ width }}" height="{{ image_height }}" fill="{{ accent_color }}" />
-        <text x="{{ width / 2 }}" y="{{ image_height / 2 }}" text-anchor="middle" fill="#ffffff"
-            font-family="{{ font_family }}" font-size="18" font-weight="600">{{ placeholder_text }}</text>
-        {% endif %}
-
-        {% for line in title_lines %}
-        <text x="16" y="{{ title_base_y + loop.index0 * title_line_height }}" fill="{{ title_color }}"
-            font-family="{{ font_family }}" font-size="{{ title_font_size }}" font-weight="600">{{ line }}</text>
-        {% endfor %}
-
-        {% for line in description_lines %}
-        <text x="16" y="{{ description_base_y + loop.index0 * description_line_height }}"
-            fill="{{ description_color }}" font-family="{{ font_family }}"
-            font-size="{{ description_font_size }}">{{ line }}</text>
-        {% endfor %}
-
-        {% if stats_text %}
-        <text x="16" y="{{ stats_y }}" fill="{{ stats_color }}" font-family="{{ font_family }}"
-            font-size="{{ stats_font_size }}">{{ stats_text }}</text>
-        {% endif %}
-    </g>
+    {% with clip_id = "card-clip" %}
+    {% include "_tile.svg" %}
+    {% endwith %}
 </svg>

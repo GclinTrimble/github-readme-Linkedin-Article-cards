@@ -2,7 +2,9 @@ from card.validate import (
     validate_color,
     validate_float,
     validate_int,
+    validate_linkedin_profile_url,
     validate_linkedin_url,
+    validate_url_list,
 )
 
 
@@ -60,3 +62,42 @@ def test_validate_linkedin_url_rejects_bad_input():
     assert validate_linkedin_url("https://evil.com/pulse/x") == ""
     assert validate_linkedin_url("https://www.linkedin.com/feed/") == ""
     assert validate_linkedin_url("https://user:pass@www.linkedin.com/pulse/x") == ""
+
+
+def test_validate_profile_url_accepts_recent_activity_articles():
+    assert (
+        validate_linkedin_profile_url(
+            "https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/"
+        )
+        == "https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/"
+    )
+    # Trailing slash is normalized in.
+    assert (
+        validate_linkedin_profile_url(
+            "https://www.linkedin.com/in/guillaume-clin/recent-activity/articles"
+        )
+        == "https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/"
+    )
+
+
+def test_validate_profile_url_rejects_bad_input():
+    assert validate_linkedin_profile_url("https://www.linkedin.com/pulse/x") == ""
+    assert validate_linkedin_profile_url("https://evil.com/in/x/recent-activity/articles/") == ""
+    assert validate_linkedin_profile_url("https://www.linkedin.com/in/x/recent-activity/") == ""
+    assert validate_linkedin_profile_url("http://www.linkedin.com/in/x/recent-activity/articles/") == ""
+
+
+def test_validate_url_list_filters_dedupes_and_caps():
+    value = (
+        "https://www.linkedin.com/pulse/a, "
+        "https://evil.com/pulse/x, "
+        "https://www.linkedin.com/pulse/a, "
+        "https://www.linkedin.com/posts/b, "
+        "https://www.linkedin.com/pulse/c"
+    )
+    assert validate_url_list(value, max_items=2) == [
+        "https://www.linkedin.com/pulse/a",
+        "https://www.linkedin.com/posts/b",
+    ]
+    assert validate_url_list("", max_items=5) == []
+    assert validate_url_list(None, max_items=5) == []

@@ -80,6 +80,25 @@ def fetch_article_metadata(article_path_query: str) -> dict[str, str]:
     }
 
 
+def fetch_article_urls(profile_url: str) -> list[str]:
+    """Best-effort scrape of /pulse/ article links from a recent-activity page.
+
+    LinkedIn usually serves this page behind an authwall (HTTP 999), so callers
+    must treat a raised exception or empty list as "no articles found" and fall
+    back to a manually supplied list.
+    """
+    req = _build_request(profile_url)
+    with urlopen(req, timeout=10) as response:
+        body = response.read().decode("utf-8", errors="replace")
+
+    seen: list[str] = []
+    for match in re.finditer(r"https://www\.linkedin\.com/pulse/[\w%\-]+", body):
+        url = match.group(0)
+        if url not in seen:
+            seen.append(url)
+    return seen
+
+
 def data_uri_from_url(url: str) -> str:
     """Fetch an image over https and return a base64 data URI.
 

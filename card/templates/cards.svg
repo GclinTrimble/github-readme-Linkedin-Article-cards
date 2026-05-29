@@ -1,0 +1,26 @@
+<!-- github-readme-Linkedin-Article-cards (grid) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="{{ canvas_width }}" height="{{ canvas_height }}"
+    viewBox="0 0 {{ canvas_width }} {{ canvas_height }}" role="img"
+    aria-label="LinkedIn article cards">
+    {% for tile in tiles %}
+    <svg x="{{ tile.x }}" y="{{ tile.y }}" width="{{ tile.width }}" height="{{ tile.height }}"
+        viewBox="0 0 {{ tile.width }} {{ tile.height }}" overflow="visible">
+        {% with clip_id = tile.clip_id, width = tile.width, height = tile.height,
+            border_radius = tile.border_radius, background_color = tile.background_color,
+            image_href = tile.image_href, image_height = tile.image_height,
+            accent_color = tile.accent_color, font_family = tile.font_family,
+            placeholder_text = tile.placeholder_text,
+            title_lines = tile.title_lines, title_color = tile.title_color,
+            title_base_y = tile.title_base_y, title_line_height = tile.title_line_height,
+            title_font_size = tile.title_font_size,
+            description_lines = tile.description_lines, description_color = tile.description_color,
+            description_base_y = tile.description_base_y,
+            description_line_height = tile.description_line_height,
+            description_font_size = tile.description_font_size,
+            stats_text = tile.stats_text, stats_color = tile.stats_color,
+            stats_y = tile.stats_y, stats_font_size = tile.stats_font_size %}
+        {% include "_tile.svg" %}
+        {% endwith %}
+    </svg>
+    {% endfor %}
+</svg>

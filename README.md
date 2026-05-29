@@ -55,6 +55,44 @@ Integer and ratio values are clamped to their valid ranges. If LinkedIn metadata
 cannot be fetched (for example due to anti-bot blocks), the manual overrides above
 can still be used to render a card.
 
+## Live Examples (multiple article tiles)
+
+To show several articles at once as a grid in a single image, use the `/cards.svg`
+endpoint:
+
+`GET /cards.svg?url=<recent-activity-articles-url>&urls=<fallback-list>`
+
+```text
+http://127.0.0.1:5000/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/a,https://www.linkedin.com/pulse/b&max=4&columns=2
+```
+
+The endpoint first makes a **best-effort** attempt to scrape article links from the
+`recent-activity/articles/` page. LinkedIn usually serves that page behind an
+anti-bot wall (HTTP 999) when fetched anonymously, so the **`urls=` list is the
+reliable source** — provide a comma-separated list of `/pulse/` (or `/posts/`) URLs
+and the grid will render from those whenever the scrape returns nothing.
+
+### Additional query parameters
+
+| Parameter | Default      | Description                                                                 |
+| --------- | ------------ | --------------------------------------------------------------------------- |
+| `url`     | _(optional)_ | A `…/in/<vanity>/recent-activity/articles/` URL to scrape (best-effort)     |
+| `urls`    | _(optional)_ | Comma-separated list of article/post URLs used as the reliable fallback     |
+| `max`     | `4`          | Maximum number of tiles to render (1–6)                                     |
+| `columns` | `2`          | Number of grid columns (1–4)                                                |
+
+At least one of `url` or `urls` is required. All of the styling parameters from the
+single-card endpoint (`width` is the per-tile width, plus `border_radius`,
+`image_ratio`, colors, `font_family`, `max_title_lines`, `max_description_lines`)
+apply to every tile.
+
+Dark / light variants work the same way as the single card:
+
+```md
+[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/a,https://www.linkedin.com/pulse/b&max=4&columns=2&background_color=0d1117&title_color=ffffff#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+[![LinkedIn articles](https://<your-host>/cards.svg?url=https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/&urls=https://www.linkedin.com/pulse/a,https://www.linkedin.com/pulse/b&max=4&columns=2&background_color=ffffff&title_color=24292f&description_color=57606a#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
+```
+
 ## Light / dark mode
 
 The card has no built-in theme switching, but GitHub renders different images per

@@ -4,12 +4,19 @@ from urllib.error import URLError
 
 from flask import Flask, Response, render_template, request
 
-from card.utils import data_uri_from_url, fetch_article_metadata, trim_lines
+from card.utils import (
+    data_uri_from_url,
+    fetch_article_metadata,
+    fetch_article_urls,
+    trim_lines,
+)
 from card.validate import (
     validate_color,
     validate_float,
     validate_int,
+    validate_linkedin_profile_url,
     validate_linkedin_url,
+    validate_url_list,
 )
 
 app = Flask(__name__, template_folder="card/templates")
@@ -101,6 +108,136 @@ def card() -> Response:
         max_description_lines=max_description_lines,
     )
 
+    response = Response(svg, mimetype="image/svg+xml")
+    response.headers["Content-Type"] = "image/svg+xml; charset=utf-8"
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    return response
+
+
+GRID_GAP = 16
+MAX_CARDS = 6
+
+
+@app.get("/cards.svg")
+def cards() -> Response:
+    profile_arg = request.args.get("url", "").strip()
+    profile_url = validate_linkedin_profile_url(profile_arg) if profile_arg else ""
+
+    max_cards = validate_int(request.args.get("max"), default=4, min_value=1, max_value=MAX_CARDS)
+    columns = validate_int(request.args.get("columns"), default=2, min_value=1, max_value=4)
+    fallback_urls = validate_url_list(request.args.get("urls"), max_items=MAX_CARDS)
+
+    if not profile_url and not fallback_urls:
+        return Response("Provide a 'url' (recent-activity) or 'urls' list", status=400)
+
+    article_urls: list[str] = []
+    if profile_url:
+        try:
+            article_urls = fetch_article_urls(profile_url)
+        except (URLError, TimeoutError, ValueError):
+            article_urls = []
+    if not article_urls:
+        article_urls = fallback_urls
+    article_urls = article_urls[:max_cards]
+
+    if not article_urls:
+        return Response("No LinkedIn articles could be resolved", status=400)
+
+    width = validate_int(request.args.get("width"), default=420, min_value=220, max_value=1200)
+    border_radius = validate_int(
+        request.args.get("border_radius"), default=10, min_value=0, max_value=40
+    )
+    max_title_lines = validate_int(
+        request.args.get("max_title_lines"), default=2, min_value=1, max_value=4
+    )
+    max_description_lines = validate_int(
+        request.args.get("max_description_lines"), default=2, min_value=0, max_value=5
+    )
+    image_ratio = validate_float(
+        request.args.get("image_ratio"), default=0.52, min_value=0.0, max_value=1.0
+    )
+    background_color = validate_color(request.args.get("background_color"), "#0d1117")
+    title_color = validate_color(request.args.get("title_color"), "#ffffff")
+    description_color = validate_color(request.args.get("description_color"), "#c9d1d9")
+    stats_color = validate_color(request.args.get("stats_color"), "#8b949e")
+    accent_color = validate_color(request.args.get("accent_color"), "#2f81f7")
+    font_family = request.args.get("font_family", "").strip() or DEFAULT_FONT_FAMILY
+
+    image_height = int(width * image_ratio)
+
+    contents = []
+    for article_url in article_urls:
+        metadata = {"title": "", "description": "", "image": "", "likes": ""}
+        try:
+            metadata = fetch_article_metadata(article_url)
+        except (URLError, TimeoutError, ValueError):
+            pass
+        title = metadata["title"] or "LinkedIn Article"
+        description = metadata["description"] or "Read this article on LinkedIn."
+        contents.append(
+            {
+                "title_lines": trim_lines(title, max(20, width // 10), max_title_lines),
+                "description_lines": trim_lines(
+                    description, max(30, width // 12), max_description_lines
+                ),
+                "image_href": data_uri_from_url(metadata["image"]),
+                "likes": metadata["likes"],
+            }
+        )
+
+    has_likes = any(c["likes"] for c in contents)
+    footer_height = 34 if has_likes else 8
+    title_block = max_title_lines * TITLE_LINE_HEIGHT
+    description_block = max_description_lines * DESCRIPTION_LINE_HEIGHT
+    tile_height = image_height + title_block + description_block + footer_height + 26
+
+    tiles = []
+    for index, content in enumerate(contents):
+        row, col = divmod(index, columns)
+        actual_title_block = len(content["title_lines"]) * TITLE_LINE_HEIGHT
+        actual_description_block = len(content["description_lines"]) * DESCRIPTION_LINE_HEIGHT
+        tiles.append(
+            {
+                "x": col * (width + GRID_GAP),
+                "y": row * (tile_height + GRID_GAP),
+                "clip_id": f"card-clip-{index}",
+                "width": width,
+                "height": tile_height,
+                "border_radius": border_radius,
+                "background_color": background_color,
+                "image_href": content["image_href"],
+                "image_height": image_height,
+                "accent_color": accent_color,
+                "font_family": font_family,
+                "placeholder_text": "LinkedIn Article",
+                "title_lines": content["title_lines"],
+                "title_color": title_color,
+                "title_base_y": image_height + 30,
+                "title_line_height": TITLE_LINE_HEIGHT,
+                "title_font_size": TITLE_FONT_SIZE,
+                "description_lines": content["description_lines"],
+                "description_color": description_color,
+                "description_base_y": image_height + 34 + actual_title_block,
+                "description_line_height": DESCRIPTION_LINE_HEIGHT,
+                "description_font_size": DESCRIPTION_FONT_SIZE,
+                "stats_text": content["likes"],
+                "stats_color": stats_color,
+                "stats_y": image_height + actual_title_block + actual_description_block + 26,
+                "stats_font_size": STATS_FONT_SIZE,
+            }
+        )
+
+    used_columns = min(columns, len(tiles))
+    rows = -(-len(tiles) // columns)
+    canvas_width = used_columns * width + (used_columns - 1) * GRID_GAP
+    canvas_height = rows * tile_height + (rows - 1) * GRID_GAP
+
+    svg = render_template(
+        "cards.svg",
+        canvas_width=canvas_width,
+        canvas_height=canvas_height,
+        tiles=tiles,
+    )
     response = Response(svg, mimetype="image/svg+xml")
     response.headers["Content-Type"] = "image/svg+xml; charset=utf-8"
     response.headers["Cache-Control"] = "public, max-age=3600"
