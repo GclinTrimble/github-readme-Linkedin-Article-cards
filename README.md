@@ -57,12 +57,14 @@ can still be used to render a card.
 
 ## Live Examples (multiple article tiles)
 
-<a href="https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/">
+<!-- LINKEDIN-CARDS-START -->
+<a href="https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/" target="_blank" rel="noopener noreferrer">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/linkedin-cards-dark.svg" />
     <img alt="LinkedIn articles" src="./assets/linkedin-cards-light.svg" />
   </picture>
 </a>
+<!-- LINKEDIN-CARDS-END -->
 
 The grid above is rendered to static SVG files committed under [`assets/`](./assets)
 and refreshed automatically — see [How the cards stay updated](#how-the-cards-stay-updated).
@@ -122,6 +124,75 @@ point each themed embed at your running endpoint:
 [![LinkedIn articles](https://<your-host>/cards.svg?urls=<pulse-1>,<pulse-2>,<pulse-3>&max=3&columns=3&background_color=0d1117&title_color=ffffff#gh-dark-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
 [![LinkedIn articles](https://<your-host>/cards.svg?urls=<pulse-1>,<pulse-2>,<pulse-3>&max=3&columns=3&background_color=ffffff&title_color=24292f&description_color=57606a#gh-light-mode-only)](https://www.linkedin.com/in/guillaume-clin/recent-activity/articles/)
 ```
+
+## Basic Usage
+
+Want article cards like the ones above in your own profile README? This repo
+doubles as a reusable GitHub Action: it renders the cards to SVG files committed
+in your repo and refreshes them on a schedule — no server hosting required.
+
+**1. Add the markers** where you want the cards to appear in your `README.md`:
+
+```md
+<!-- LINKEDIN-CARDS-START -->
+<!-- LINKEDIN-CARDS-END -->
+```
+
+**2. Add a workflow** at `.github/workflows/linkedin-cards.yml`:
+
+```yaml
+name: Update LinkedIn cards
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: GclinTrimble/github-readme-Linkedin-Article-cards@main
+        with:
+          profile_url: https://www.linkedin.com/in/<your-vanity>/recent-activity/articles/
+          urls: >-
+            https://www.linkedin.com/pulse/your-first-article,
+            https://www.linkedin.com/pulse/your-second-article
+          max: 3
+          columns: 3
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update LinkedIn article cards"
+```
+
+The Action writes `assets/linkedin-cards.svg`, fills it in between your markers
+(wrapped in a `target="_blank"` link to your `profile_url`), and the commit step
+pushes the change. Trigger it once via **Actions → Update LinkedIn cards → Run
+workflow** to populate the cards immediately.
+
+All the styling parameters from the [single-card endpoint](#query-parameters)
+(`width`, `border_radius`, colors, `font_family`, `max_title_lines`,
+`max_description_lines`, `image_ratio`) are also available as Action inputs.
+
+### If your cards render as placeholders
+
+GitHub-hosted runners share IP ranges that LinkedIn often authwalls (HTTP 999),
+so the runner may be unable to fetch your article titles and cover images. When
+that happens, commit a `cards.config.json` with manual `overrides` (and optional
+dark/light `variants`) and point the Action at it — an override entry skips the
+network fetch entirely, so the render stays correct:
+
+```yaml
+      - uses: GclinTrimble/github-readme-Linkedin-Article-cards@main
+        with:
+          config_file: cards.config.json
+```
+
+See [`cards.config.json`](./cards.config.json) in this repo for a complete,
+working example (it drives the Live Examples above).
 
 ## Light / dark mode
 

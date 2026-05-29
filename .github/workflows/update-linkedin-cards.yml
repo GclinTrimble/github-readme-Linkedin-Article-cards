@@ -7,9 +7,10 @@ on:
   push:
     paths:
       - cards.config.json
-      - scripts/generate_cards.py
+      - scripts/**
       - card/**
       - app.py
+      - action.yml
 
 permissions:
   contents: write
@@ -24,23 +25,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      # Dogfood our own reusable action against the committed config.
+      - uses: ./
         with:
-          python-version: "3.11"
-          cache: pip
+          config_file: cards.config.json
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Render cards
-        run: python scripts/generate_cards.py
-
-      - name: Commit updated assets
+      - name: Commit updated cards
         run: |
-          if [ -n "$(git status --porcelain assets)" ]; then
+          if [ -n "$(git status --porcelain assets README.md)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add assets
+            git add assets README.md
             git commit -m "chore: refresh LinkedIn article cards"
             git push
           else

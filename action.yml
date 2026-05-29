@@ -1,0 +1,118 @@
+name: "LinkedIn README Article Cards"
+description: "Render LinkedIn article cards as static SVGs and embed them in your README between comment markers."
+branding:
+  icon: "linkedin"
+  color: "blue"
+
+inputs:
+  urls:
+    description: "Comma-separated LinkedIn /pulse/ or /posts/ article URLs to render."
+    required: false
+    default: ""
+  profile_url:
+    description: "recent-activity/articles URL the card grid links to (opens in a new tab)."
+    required: false
+    default: ""
+  config_file:
+    description: "Path to a committed JSON config. When set it is authoritative (supports overrides + variants) and the inline style inputs below are ignored. Use this when the runner is authwalled by LinkedIn."
+    required: false
+    default: ""
+  max:
+    description: "Maximum number of tiles to render (1-6)."
+    required: false
+    default: "4"
+  columns:
+    description: "Number of grid columns (1-4)."
+    required: false
+    default: "2"
+  output_dir:
+    description: "Directory (relative to repo root) the SVGs are written to."
+    required: false
+    default: "assets"
+  comment_tag_name:
+    description: "README marker name; cards go between <!-- {name}-START --> and <!-- {name}-END -->."
+    required: false
+    default: "LINKEDIN-CARDS"
+  readme:
+    description: "Path to the README to rewrite."
+    required: false
+    default: "README.md"
+  width:
+    description: "Per-tile width in px (220-1200)."
+    required: false
+    default: ""
+  border_radius:
+    description: "Corner radius in px (0-40)."
+    required: false
+    default: ""
+  image_ratio:
+    description: "Cover image height as a fraction of width (0.0-1.0)."
+    required: false
+    default: ""
+  max_title_lines:
+    description: "Max title lines before truncation (1-4)."
+    required: false
+    default: ""
+  max_description_lines:
+    description: "Max description lines before truncation (0-5)."
+    required: false
+    default: ""
+  background_color:
+    description: "Card background color (hex)."
+    required: false
+    default: ""
+  title_color:
+    description: "Title text color (hex)."
+    required: false
+    default: ""
+  description_color:
+    description: "Description text color (hex)."
+    required: false
+    default: ""
+  stats_color:
+    description: "Likes/stats text color (hex)."
+    required: false
+    default: ""
+  accent_color:
+    description: "Placeholder block color when no image is available (hex)."
+    required: false
+    default: ""
+  font_family:
+    description: "Font family for all text."
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      shell: bash
+      run: pip install -r "${{ github.action_path }}/requirements.txt"
+
+    - name: Render LinkedIn cards
+      shell: bash
+      run: python "${{ github.action_path }}/scripts/action_entry.py"
+      env:
+        INPUT_URLS: ${{ inputs.urls }}
+        INPUT_PROFILE_URL: ${{ inputs.profile_url }}
+        INPUT_CONFIG_FILE: ${{ inputs.config_file }}
+        INPUT_MAX: ${{ inputs.max }}
+        INPUT_COLUMNS: ${{ inputs.columns }}
+        INPUT_OUTPUT_DIR: ${{ inputs.output_dir }}
+        INPUT_COMMENT_TAG_NAME: ${{ inputs.comment_tag_name }}
+        INPUT_README: ${{ inputs.readme }}
+        INPUT_WIDTH: ${{ inputs.width }}
+        INPUT_BORDER_RADIUS: ${{ inputs.border_radius }}
+        INPUT_IMAGE_RATIO: ${{ inputs.image_ratio }}
+        INPUT_MAX_TITLE_LINES: ${{ inputs.max_title_lines }}
+        INPUT_MAX_DESCRIPTION_LINES: ${{ inputs.max_description_lines }}
+        INPUT_BACKGROUND_COLOR: ${{ inputs.background_color }}
+        INPUT_TITLE_COLOR: ${{ inputs.title_color }}
+        INPUT_DESCRIPTION_COLOR: ${{ inputs.description_color }}
+        INPUT_STATS_COLOR: ${{ inputs.stats_color }}
+        INPUT_ACCENT_COLOR: ${{ inputs.accent_color }}
+        INPUT_FONT_FAMILY: ${{ inputs.font_family }}

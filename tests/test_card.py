@@ -4,6 +4,7 @@ import xml.dom.minidom as minidom
 import pytest
 
 import app as app_module
+import scripts.action_entry as action_entry
 import scripts.generate_cards as gen
 from card.utils import data_uri_from_url, trim_lines
 
@@ -199,3 +200,64 @@ def test_trim_lines_adds_ellipsis():
 def test_data_uri_rejects_non_https():
     assert data_uri_from_url("http://example.com/x.jpg") == ""
     assert data_uri_from_url("") == ""
+
+
+def test_replace_between_markers_inserts_block():
+    text = "before\n<!-- LINKEDIN-CARDS-START -->\nold\n<!-- LINKEDIN-CARDS-END -->\nafter\n"
+    out = action_entry.replace_between_markers(text, "LINKEDIN-CARDS", "NEW")
+    assert out is not None
+    assert "before\n" in out and "\nafter\n" in out
+    assert "old" not in out
+    assert "<!-- LINKEDIN-CARDS-START -->\nNEW\n<!-- LINKEDIN-CARDS-END -->" in out
+
+
+def test_replace_between_markers_noop_without_markers():
+    assert action_entry.replace_between_markers("no markers here", "LINKEDIN-CARDS", "X") is None
+
+
+def test_build_embed_single_variant_uses_img():
+    block = action_entry.build_embed(["linkedin-cards"], "assets", "https://example.com/p")
+    assert 'target="_blank"' in block
+    assert 'rel="noopener noreferrer"' in block
+    assert 'href="https://example.com/p"' in block
+    assert "<img" in block and "<picture>" not in block
+    assert "./assets/linkedin-cards.svg" in block
+
+
+def test_build_embed_dark_light_uses_picture():
+    block = action_entry.build_embed(
+        ["linkedin-cards-dark", "linkedin-cards-light"], "assets", ""
+    )
+    assert "<picture>" in block
+    assert "./assets/linkedin-cards-dark.svg" in block
+    assert 'src="./assets/linkedin-cards-light.svg"' in block
+
+
+def test_action_entry_renders_and_fills_readme(monkeypatch, tmp_path):
+    _patch_metadata(monkeypatch, title="Hi", description="There", likes="3 likes")
+    monkeypatch.setattr(app_module, "data_uri_from_url", lambda _url: "")
+    monkeypatch.setattr(gen, "fetch_article_urls", lambda _url: [])
+    monkeypatch.setattr(action_entry, "WORKSPACE", tmp_path)
+
+    readme = tmp_path / "README.md"
+    readme.write_text(
+        "intro\n<!-- LINKEDIN-CARDS-START -->\n<!-- LINKEDIN-CARDS-END -->\noutro\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("INPUT_URLS", "https://www.linkedin.com/pulse/a,https://www.linkedin.com/pulse/b")
+    monkeypatch.setenv("INPUT_PROFILE_URL", "https://www.linkedin.com/in/me/recent-activity/articles/")
+    monkeypatch.setenv("INPUT_MAX", "2")
+    monkeypatch.setenv("INPUT_COLUMNS", "2")
+
+    assert action_entry.main() == 0
+
+    svg = tmp_path / "assets" / "linkedin-cards.svg"
+    assert svg.exists()
+    doc = minidom.parseString(svg.read_text(encoding="utf-8"))
+    assert doc.documentElement.tagName == "svg"
+
+    body = readme.read_text(encoding="utf-8")
+    assert 'target="_blank"' in body
+    assert "./assets/linkedin-cards.svg" in body
+    assert "https://www.linkedin.com/in/me/recent-activity/articles/" in body
